@@ -8,12 +8,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/ParagGautam001/devsecops-project.git'
-            }
-        }
-
         stage('SonarQube Scan') {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
