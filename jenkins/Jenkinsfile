@@ -9,19 +9,20 @@ pipeline {
     stages {
 
         stage('SonarQube Scan') {
-            steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                    docker run --rm --network host \
-                      sonarsource/sonar-scanner-cli \
-                      -Dsonar.projectKey=devsecops-app \
-                      -Dsonar.sources=app \
-                      -Dsonar.host.url=http://localhost:9000 \
-                      -Dsonar.login=$SONAR_TOKEN
-                    '''
-                }
-            }
+    steps {
+        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+            sh '''
+            docker run --rm --network host \
+              -v $(pwd):/usr/src \
+              sonarsource/sonar-scanner-cli \
+              -Dsonar.projectKey=devsecops-app \
+              -Dsonar.sources=app \
+              -Dsonar.host.url=http://localhost:9000 \
+              -Dsonar.login=$SONAR_TOKEN
+            '''
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {
