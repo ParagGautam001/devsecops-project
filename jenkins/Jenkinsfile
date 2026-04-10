@@ -12,7 +12,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     sh """
-                    docker run --rm \
+                    docker run --rm --network host \
                       -e SONAR_HOST_URL=http://localhost:9000 \
                       -e SONAR_LOGIN=$SONAR_TOKEN \
                       sonarsource/sonar-scanner-cli \
