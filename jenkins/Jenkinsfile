@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "paraggautam1/devsecops-app:v1"
+        SONARQUBE = "sonar-server"
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/ParagGautam001/devsecops-project.git'
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    sh """
+                    docker run --rm \
+                      -e SONAR_HOST_URL=http://34.201.45.34:9000 \
+                      -e SONAR_LOGIN=$SONAR_TOKEN \
+                      sonarsource/sonar-scanner-cli \
+                      -Dsonar.projectKey=devsecops-app \
+                      -Dsonar.sources=app
+                    """
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t $DOCKER_IMAGE app/'
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh """
+                    echo $PASS | docker login -u $USER --password-stdin
+                    docker push $DOCKER_IMAGE
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh """
+                kubectl set image deployment/devsecops-app app=$DOCKER_IMAGE
+                """
+            }
+        }
+    }
+}
