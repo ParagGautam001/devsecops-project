@@ -17,3 +17,6 @@ spec:
         image: paraggautam1/devsecops-app:v1
         ports:
         - containerPort: 3000
+        env:
+          - name: VERSION
+            value: "v1"
