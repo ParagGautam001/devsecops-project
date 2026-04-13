@@ -52,11 +52,12 @@ docker push $DOCKER_IMAGE
         }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                sh """
-                kubectl set image deployment/devsecops-app app=$DOCKER_IMAGE
-                """
-            }
-        }
+    steps {
+        sh '''
+        kubectl set image deployment/devsecops-app app=paraggautam1/devsecops-app:v1
+        kubectl rollout status deployment/devsecops-app
+        '''
+    }
+}
     }
 }
