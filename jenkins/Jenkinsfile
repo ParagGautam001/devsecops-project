@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "paraggautam1/devsecops-app:v1"
+        DOCKER_IMAGE = "paraggautam1/devsecops-app:${BUILD_NUMBER}"
         SONARQUBE = "sonar-server"
     }
 
@@ -54,7 +54,7 @@ docker push $DOCKER_IMAGE
         stage('Deploy to Kubernetes') {
     steps {
         sh '''
-        kubectl set image deployment/devsecops-app app=paraggautam1/devsecops-app:v1
+        kubectl set image deployment/devsecops-app app=$DOCKER_IMAGE
         kubectl rollout status deployment/devsecops-app
         '''
     }
