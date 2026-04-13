@@ -55,6 +55,7 @@ docker push $DOCKER_IMAGE
     steps {
         sh '''
         kubectl set image deployment/devsecops-app app=$DOCKER_IMAGE
+        kubectl set env deployment/devsecops-app VERSION=${BUILD_NUMBER}
         kubectl rollout status deployment/devsecops-app
         '''
     }
